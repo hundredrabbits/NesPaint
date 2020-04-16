@@ -40,6 +40,8 @@ pos_x                   .dsb 1
 pos_y                   .dsb 1
 tile_x                  .dsb 1
 tile_y                  .dsb 1
+bg_lb                   .dsb 1
+bg_hb                   .dsb 1
 
 ;;
 
