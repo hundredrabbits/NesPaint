@@ -1,81 +1,46 @@
 
-;;;;;;;;;;;;;;;;;;;;;;;
+;; iNES header
 
-;;;   iNES HEADER   ;;;
-;;;;;;;;;;;;;;;;;;;;;;;
-    .db  "NES", $1a            ; identification of the iNES header
-    .db  PRG_COUNT             ; number of 16KB PRG-ROM pages
-    .db  $01                   ; number of 8KB CHR-ROM pages
-    .db  $70|MIRRORING         ; mapper 7
-    .dsb $09, $00              ; clear the remaining bytes
-    .fillvalue $FF             ; Sets all unused space in rom to value $FF
+  .db  "NES", $1a              ; identification of the iNES header
+  .db  1                       ; number of 16KB PRG-ROM pages
+  .db  $01                     ; number of 8KB CHR-ROM pages
+  .db  $70|%0001               ; mapper 7
+  .dsb $09,$00                 ; clear the remaining bytes
+  .fillvalue $FF               ; Sets all unused space in rom to value $FF
 
-;;;;;;;;;;;;;;;;;;;;;
+;; constants
 
-;;;   VARIABLES   ;;;
+PPUCTRL             .equ $2000
+PPUMASK             .equ $2001
+PPUSTATUS           .equ $2002 ; Using BIT PPUSTATUS preserves the previous contents of A.
+SPRADDR             .equ $2003
+PPUSCROLL           .equ $2005
+PPUADDR             .equ $2006
+PPUDATA             .equ $2007
+SPRDMA              .equ $4014
+SNDCHN              .equ $4015
+JOY1                .equ $4016
+JOY2                .equ $4017
 
-;;;;;;;;;;;;;;;;;;;;;
+;;
 
-    .enum $0000                ; Zero Page variables
+BUTTON_RIGHT        .equ #$01
+BUTTON_LEFT         .equ #$02
+BUTTON_DOWN         .equ #$04
+BUTTON_UP           .equ #$08
+BUTTON_START        .equ #$10
+BUTTON_SELECT       .equ #$20
+BUTTON_B            .equ #$40
+BUTTON_A            .equ #$80
+  .enum $0000    
+
+;;
+
 pos_x                   .dsb 1
 pos_y                   .dsb 1
 tile_x                  .dsb 1
 tile_y                  .dsb 1
-    .ende
-    .enum $0400                ; Variables at $0400. Can start on any RAM page
-sleeping                .dsb 1
-    .ende
 
-;;;;;;;;;;;;;;;;;;;;;
+;;
 
-;;;   CONSTANTS   ;;;
-
-;;;;;;;;;;;;;;;;;;;;;
-
-PRG_COUNT       = 1            ; 1 = 16KB, 2 = 32KB
-MIRRORING       = %0001
-PPU_Control         .equ $2000
-PPU_Mask            .equ $2001
-PPU_Status          .equ $2002
-PPU_Scroll          .equ $2005
-PPU_Address         .equ $2006
-PPU_Data            .equ $2007
-spriteRAM           .equ $0200
-    .org $C000
-
-;;;;;;;;;;;;;;;;;
-
-;;;   RESET   ;;;
-
-;;;;;;;;;;;;;;;;;
-
-RESET:                         ; 
-  SEI                          ; disable IRQs
-  CLD                          ; disable decimal mode
-  LDX #$40
-  STX $4017                    ; disable APU frame IRQ
-  LDX #$FF
-  TXS                          ; Set up stack
-  INX                          ; now X = 0
-  STX $2000                    ; disable NMI
-  STX $2001                    ; disable rendering
-  STX $4010                    ; disable DMC IRQs
-vblankwait1:                   ; First wait for vblank to make sure PPU is ready
-  BIT $2002
-  BPL vblankwait1
-clrmem:                        ; 
-  LDA #$00
-  STA $0000, x
-  STA $0100, x
-  STA $0300, x
-  STA $0400, x
-  STA $0500, x
-  STA $0600, x
-  STA $0700, x
-  LDA #$FE
-  STA $0200, x                 ; move all sprites off screen
-  INX
-  BNE clrmem
-vblankwait2:                   ; Second wait for vblank, PPU is ready after this
-  BIT $2002
-  BPL vblankwait2
+  .ende
