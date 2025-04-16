@@ -7,5 +7,5 @@ Currently under development.
 
 Extras
 
-- Support: https://patreon.com/100
+- Support: https://patreon.com/hundredrabbits
 - Pull Requests are welcome!
